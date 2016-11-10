@@ -216,7 +216,7 @@ public class GuiGifCapture extends GuiScreen
 
             if (pokemob != null)
             {
-                pokemob = (EntityLiving) ((IPokemob) pokemob).changeForme(pokedexEntry.getName());
+                pokemob = (EntityLiving) ((IPokemob) pokemob).megaEvolve(pokedexEntry);
                 ((IPokemob) pokemob).setSize(1);
                 ((IPokemob) pokemob).setShiny(shiny);
                 entityToDisplayMap.put(pokedexEntry, pokemob);
@@ -265,6 +265,7 @@ public class GuiGifCapture extends GuiScreen
             entity.rotationYaw = yHeadRenderAngle;
             entity.rotationPitch = xHeadRenderAngle;
             entity.rotationYawHead = entity.rotationYaw;
+            entity.prevRotationYawHead = entity.rotationYaw;
             yRenderAngle = -30;
             xRenderAngle = 0;
             GL11.glRotatef(yRenderAngle, 0.0F, 1.0F, 0.0F);
@@ -304,7 +305,7 @@ public class GuiGifCapture extends GuiScreen
             if (time != lastTime)
             {
                 pokedexEntry = pokemob.getPokedexEntry();
-                PokecubeWikiWriter.doCapturePokemobGif();
+                PokemobImageWriter.doCapturePokemobGif();
             }
             lastTime = time;
         }

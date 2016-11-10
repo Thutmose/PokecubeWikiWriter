@@ -11,6 +11,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -72,7 +73,9 @@ public class WikiWriteMod
                 EntityPlayer player = getCommandSenderAsPlayer(sender);
                 if (args.length == 1 && args[0].equals("all"))
                 {
+                    sender.addChatMessage(new TextComponentString("Starting Wiki output"));
                     PokecubeWikiWriter.writeWiki();
+                    sender.addChatMessage(new TextComponentString("Finished Wiki output"));
                 }
                 else if (args.length >= 2 && args[0].equals("img"))
                 {
@@ -91,9 +94,9 @@ public class WikiWriteMod
                             init = Database.getEntry(args[1]);
                         }
                         if (init == null) throw new CommandException("Error in pokedex entry for " + args[2]);
-                        PokecubeWikiWriter.one = !all;
-                        PokecubeWikiWriter.gifs = false;
-                        PokecubeWikiWriter.beginGifCapture();
+                        PokemobImageWriter.one = !all;
+                        PokemobImageWriter.gifs = false;
+                        PokemobImageWriter.beginGifCapture();
                         GuiGifCapture.pokedexEntry = init;
                         Minecraft.getMinecraft().thePlayer.openGui(instance, 0, player.worldObj, 0, 0, 0);
                     }
