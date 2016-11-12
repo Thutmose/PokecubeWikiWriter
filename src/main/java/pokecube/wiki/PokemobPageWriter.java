@@ -63,7 +63,7 @@ public class PokemobPageWriter extends PokecubeWikiWriter
             String prev = "";
             if (pre != entry)
             {
-                next = referenceLink((reference++) + "", pre.getTranslatedName());
+                prev = referenceLink((reference++) + "", pre.getTranslatedName());
                 refs.add(pokemobDir + pagePrefix + pre.getName());
             }
             otherPokemon = "| " + prev + otherPokemon + next + " |";
