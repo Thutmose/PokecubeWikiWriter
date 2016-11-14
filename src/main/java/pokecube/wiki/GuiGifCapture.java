@@ -209,10 +209,7 @@ public class GuiGifCapture extends GuiScreen
 
         if (pokemob == null)
         {
-            // int entityId =
-            // mod_Pokecube.getEntityIdFromPokedexNumber(pokedexEntry.getPokedexNb());
-            pokemob = (EntityLiving) PokecubeMod.core.createEntityByPokedexNb(pokedexEntry.getPokedexNb(),
-                    entityPlayer.worldObj);
+            pokemob = (EntityLiving) PokecubeMod.core.createPokemob(pokedexEntry, entityPlayer.worldObj);
 
             if (pokemob != null)
             {
