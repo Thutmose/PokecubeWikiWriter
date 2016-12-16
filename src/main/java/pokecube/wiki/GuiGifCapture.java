@@ -23,7 +23,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import pokecube.core.database.Pokedex;
@@ -51,6 +50,7 @@ public class GuiGifCapture extends GuiScreen
     private float              xHeadRenderAngle = 0;
     private int                mouseRotateControl;
     public static boolean      shiny            = false;
+    public static boolean      icon             = false;
 
     /**
      *
@@ -80,6 +80,18 @@ public class GuiGifCapture extends GuiScreen
     @Override
     protected void keyTyped(char par1, int par2)
     {
+        System.out.println(par2);
+
+        if (par2 == 205 || par2 == 203)
+        {
+            if (par2 == 205)
+            {
+                pokedexEntry = Pokedex.getInstance().getNext(pokedexEntry, 1);
+            }
+            else pokedexEntry = Pokedex.getInstance().getNext(pokedexEntry, -1);
+            return;
+        }
+
         if (par2 != 54 && par2 != 58 && par2 != 42 && par2 != 199)
         {
             mc.displayGuiScreen(null);
@@ -161,23 +173,20 @@ public class GuiGifCapture extends GuiScreen
     {
     }
 
-    private static final ResourceLocation GUIIMG = new ResourceLocation(PokecubeMod.ID,
-            "textures/gui/" + "wikiCapture.png");
-
     @Override
     public void drawScreen(int i, int j, float f)
     {
-        Minecraft minecraft = Minecraft.getMinecraft();
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glDisable(GL11.GL_LIGHTING);
         int j3 = 0xF0F0F0;// 61680;
         int k = j3 % 0x000100;
         int l = j3 / 0xFFFFFF;
         GL13.glMultiTexCoord2f(GL13.GL_TEXTURE1, k / 1.0F, l / 1.0F);
-        minecraft.renderEngine.bindTexture(GUIIMG);
         int j2 = (width - xSize) / 2;
         int k2 = (height - ySize) / 2;
-        this.drawGradientRect(j2, k2, xSize + j2, ySize + k2, 0xff000000, 0xff000000);
+        icon = true;
+        if (icon) this.drawGradientRect(j2, k2, xSize + j2, ySize + k2, 0xff010203, 0xff010203);
+        else this.drawGradientRect(j2, k2, xSize + j2, ySize + k2, 0xff000000, 0xff000000);
         GL11.glPushMatrix();
         renderMob();
         GL11.glPopMatrix();
@@ -240,7 +249,7 @@ public class GuiGifCapture extends GuiScreen
                 pokemob.setShiny(shiny);
             }
             size = Math.max(pokemob.getPokedexEntry().height, pokemob.getPokedexEntry().width);
-            size = Math.max(size, pokemob.getPokedexEntry().length);
+            if (!icon) size = Math.max(size, pokemob.getPokedexEntry().length);
             j = (width - xSize) / 2 + 5;
             k = (height - ySize) / 2 + 5;
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
@@ -248,7 +257,7 @@ public class GuiGifCapture extends GuiScreen
             GL11.glPushMatrix();
             GL11.glPushMatrix();
             GL11.glTranslatef(j + 55, k + 120, 50F);
-            float zoom = (float) (25F / Math.sqrt(size));
+            float zoom = icon ? 6f / size : (float) (25F / Math.sqrt(size));
             GL11.glScalef(-zoom, zoom, zoom);
             GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
             float f5 = ((k + 75) - 50) - ySize;
@@ -257,14 +266,26 @@ public class GuiGifCapture extends GuiScreen
             RenderHelper.enableStandardItemLighting();
 
             GL11.glRotatef(-135F, 0.0F, 1.0F, 0.0F);
-            GL11.glRotatef(-(float) Math.atan(f5 / 40F) * 20F, 1.0F, 0.0F, 0.0F);
+            if (!icon) GL11.glRotatef(-(float) Math.atan(f5 / 40F) * 20F, 1.0F, 0.0F, 0.0F);
             entity.renderYawOffset = 0F;
             entity.rotationYaw = yHeadRenderAngle;
             entity.rotationPitch = xHeadRenderAngle;
             entity.rotationYawHead = entity.rotationYaw;
             entity.prevRotationYawHead = entity.rotationYaw;
-            yRenderAngle = -30;
-            xRenderAngle = 0;
+            if (!icon)
+            {
+                yRenderAngle = -30;
+                xRenderAngle = 0;
+            }
+            else
+            {
+                yRenderAngle = 0;
+                xRenderAngle = 0;
+                entity.rotationYaw = 0;
+                entity.rotationPitch = 0;
+                entity.rotationYawHead = entity.rotationYaw;
+                entity.prevRotationYawHead = entity.rotationYaw;
+            }
             GL11.glRotatef(yRenderAngle, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(xRenderAngle, 1.0F, 0.0F, 0.0F);
             ((EntityPokemob) entity).setPokemonAIState(IPokemob.SITTING, false);
@@ -281,7 +302,7 @@ public class GuiGifCapture extends GuiScreen
             GL11.glPopMatrix();
 
             EntityLivingBase owner = entityPlayer;
-            if (owner != null)
+            if (owner != null && !icon)
             {
                 GL11.glTranslatef(j + 55, k + 120, 50F);
                 GL11.glScalef(-zoom, zoom, zoom);

@@ -16,13 +16,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import pokecube.compat.Compat;
-import pokecube.core.database.Database;
 import pokecube.core.database.Pokedex;
 import pokecube.core.database.PokedexEntry;
-import pokecube.core.database.SpawnBiomeMatcher;
 import pokecube.core.database.PokedexEntry.EvolutionData;
 import pokecube.core.database.PokedexEntry.SpawnData;
 import pokecube.core.database.PokedexEntry.SpawnData.SpawnEntry;
+import pokecube.core.database.SpawnBiomeMatcher;
 import pokecube.core.moves.MovesUtils;
 import pokecube.core.utils.PokeType;
 import thut.api.terrain.BiomeType;
@@ -225,9 +224,9 @@ public class PokemobPageWriter extends PokecubeWikiWriter
                 }
             }
             SpawnData data = entry.getSpawnData();
-            if (data == null && Database.getEntry(entry.getChildNb()) != null)
+            if (data == null && entry.getChild() != null)
             {
-                data = Database.getEntry(entry.getChildNb()).getSpawnData();
+                data = entry.getChild().getSpawnData();
             }
             if (data != null)
             {

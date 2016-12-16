@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 
@@ -135,45 +136,150 @@ public class PokemobImageWriter extends PokecubeWikiWriter
         y += WINDOW_YPOS;
         if (GuiGifCapture.pokedexEntry != null) currentPokemob = GuiGifCapture.pokedexEntry.getPokedexNb();
         else return;
-        String pokename = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
-                new String("img" + File.separator + currentPokemob + "_"));
-        GL11.glReadBuffer(GL11.GL_FRONT);
-        ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
-        GL11.glReadPixels(x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
-        String currentFrameSuffix = new String();
-
-        if (currentCaptureFrame < 10) currentFrameSuffix = "0";
-
-        String shinysuffix = GuiGifCapture.shiny && GuiGifCapture.pokedexEntry.hasShiny ? "S" : "";
-
-        currentFrameSuffix += currentCaptureFrame + shinysuffix + ".png";
-        String fileName = pokename + currentFrameSuffix;
-        if (!gifs) fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
-                new String("img" + File.separator + GuiGifCapture.pokedexEntry.getName() + shinysuffix + ".png"));
-        File file = new File(fileName);
-        file.mkdirs();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        for (int i = 0; i < width; i++)
+        int x1 = x;
+        int y1 = y;
+        // int i1 = 7;
+        // int j1 = 3;
+        capture:
+        if (GuiGifCapture.icon)
         {
-            for (int j = 0; j < height; j++)
+            // x = x1 + i1 * 32 + -38;
+            // y = y1 + j1 * 32 + 0;
+            String tex = GuiGifCapture.pokedexEntry.texturePath.replace("/entity/", "/entity_icon/");
+            String pokename = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
+                    new String("img" + File.separator + currentPokemob + "_"));
+            GL11.glReadBuffer(GL11.GL_FRONT);
+            ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+            GL11.glReadPixels(x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+            String currentFrameSuffix = new String();
+
+            if (currentCaptureFrame < 10) currentFrameSuffix = "0";
+
+            String shinysuffix = GuiGifCapture.shiny && GuiGifCapture.pokedexEntry.hasShiny ? "s" : "";
+
+            currentFrameSuffix += currentCaptureFrame + shinysuffix + ".png";
+            String fileName = pokename + currentFrameSuffix;
+            if (!gifs)
             {
-                int k = (i + (width * j)) * 4;
-                int r = buffer.get(k) & 0xFF;
-                int g = buffer.get(k + 1) & 0xFF;
-                int b = buffer.get(k + 2) & 0xFF;
-                image.setRGB(i, height - (j + 1), (0xFF << 24) | (r << 16) | (g << 8) | b);
+                String name = GuiGifCapture.pokedexEntry.getName() + shinysuffix + ".png";
+                if (GuiGifCapture.icon) name = name.toLowerCase(Locale.ENGLISH);
+                fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
+                        new String("img" + File.separator + tex + name));
+            }
+            File file = new File(fileName);
+            file.mkdirs();
+            int n = 0;
+
+            int x0 = width, y0 = height, xf = 0, yf = 0;
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    int k = (i + (width * j)) * 4;
+                    int r = buffer.get(k) & 0xFF;
+                    int g = buffer.get(k + 1) & 0xFF;
+                    int b = buffer.get(k + 2) & 0xFF;
+                    if (!(r == 1 && g == 2 && b == 3))
+                    {
+                        x0 = Math.min(i, x0);
+                        xf = Math.max(i, xf);
+                        y0 = Math.min(j, y0);
+                        yf = Math.max(j, yf);
+                        n++;
+                    }
+                }
+            }
+
+            int dy = yf - y0;
+            int dx = xf - x0;
+            int ow = width;
+            int oh = height;
+            width = dx + 1;// Math.max(dx, dy);
+            height = dy + 1;// width;
+            System.out.println(width + " " + height + " " + oh + " " + ow + " " + GuiGifCapture.pokedexEntry);
+            if (width < 0 || height < 0) break capture;
+
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            n = 0;
+            for (int i = x0; i < x0 + width; i++)
+            {
+                for (int j = y0; j < y0 + height; j++)
+                {
+                    int k = (i + (ow * j)) * 4;
+                    int r = buffer.get(k) & 0xFF;
+                    int g = buffer.get(k + 1) & 0xFF;
+                    int b = buffer.get(k + 2) & 0xFF;
+                    int a = 0xFF;
+                    if (GuiGifCapture.icon && r == 1 && g == 2 && b == 3)
+                    {
+                        a = 0;
+                        n++;
+                    }
+                    image.setRGB(i - x0, height - (j - y0 + 1), (a << 24) | (r << 16) | (g << 8) | b);
+                }
+            }
+            System.out.println(n + " blanks");
+
+            try
+            {
+                ImageIO.write(image, "png", file);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
         }
+        else
+        {
+            x = x1;
+            y = y1;
 
-        try
-        {
-            ImageIO.write(image, "png", file);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
+            String pokename = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
+                    new String("img" + File.separator + currentPokemob + "_"));
+            GL11.glReadBuffer(GL11.GL_FRONT);
+            ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+            GL11.glReadPixels(x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+            String currentFrameSuffix = new String();
+
+            if (currentCaptureFrame < 10) currentFrameSuffix = "0";
+
+            String shinysuffix = GuiGifCapture.shiny && GuiGifCapture.pokedexEntry.hasShiny ? "S" : "";
+
+            currentFrameSuffix += currentCaptureFrame + shinysuffix + ".png";
+            String fileName = pokename + currentFrameSuffix;
+            if (!gifs)
+            {
+                String name = GuiGifCapture.pokedexEntry.getName() + shinysuffix + ".png";
+                fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml", new String("img" + File.separator + name));
+            }
+            File file = new File(fileName);
+            file.mkdirs();
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    int k = (i + (width * j)) * 4;
+                    int r = buffer.get(k) & 0xFF;
+                    int g = buffer.get(k + 1) & 0xFF;
+                    int b = buffer.get(k + 2) & 0xFF;
+                    int a = 0xFF;
+                    image.setRGB(i, height - (j + 1), (a << 24) | (r << 16) | (g << 8) | b);
+                }
+            }
+
+            try
+            {
+                ImageIO.write(image, "png", file);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         currentCaptureFrame++;

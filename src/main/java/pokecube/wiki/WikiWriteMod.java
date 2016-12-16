@@ -35,7 +35,7 @@ public class WikiWriteMod
     public static final String MODID      = "pokecube_wikioutput";
     public static final String VERSION    = "@VERSION@";
 
-    public final static String MCVERSIONS = "[1.9.4]";
+    public final static String MCVERSIONS = "[1.9.4,1.12]";
 
     @Instance(value = MODID)
     public static WikiWriteMod instance;
@@ -93,7 +93,7 @@ public class WikiWriteMod
                         {
                             init = Database.getEntry(args[1]);
                         }
-                        if (init == null) throw new CommandException("Error in pokedex entry for " + args[2]);
+                        if (init == null) throw new CommandException("Error in pokedex entry for " + args[1]);
                         PokemobImageWriter.one = !all;
                         PokemobImageWriter.gifs = false;
                         PokemobImageWriter.beginGifCapture();
