@@ -32,7 +32,7 @@ public class PokecubeWikiWriter
 
     static String referenceLink(String ref, String name)
     {
-        return "[" + name + "][" + ref + "]";
+        return "[[" + name + "|" + ref + "]]";
     }
 
     static String referenceImg(String ref)
@@ -52,7 +52,7 @@ public class PokecubeWikiWriter
         pokemobDir = "https://github.com/Thutmose/Pokecube/wiki/";
 
         String code = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
-        if (code.equals("en_US"))
+        if (code.equalsIgnoreCase("en_US"))
         {
             pagePrefix = "";
         }
@@ -75,7 +75,7 @@ public class PokecubeWikiWriter
             String fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml", pagePrefix + "pokemobList.md");
             fwriter = new FileWriter(fileName);
             out = new PrintWriter(fwriter);
-            out.println("#" + I18n.format("list.pokemobs.title"));
+            out.println("# " + I18n.format("list.pokemobs.title"));
             out.println("|  |  |  |  |");
             out.println("| --- | --- | --- | --- |");
             int n = 0;
