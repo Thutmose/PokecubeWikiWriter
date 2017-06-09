@@ -80,9 +80,6 @@ public class PokecubeWikiWriter
             out.println("| --- | --- | --- | --- |");
             int n = 0;
             boolean ended = false;
-            int reference = 1;
-            ArrayList<String> refs = Lists.newArrayList();
-
             List<PokedexEntry> entries = Lists.newArrayList(Database.baseFormes.values());
             Collections.sort(entries, new Comparator<PokedexEntry>()
             {
@@ -96,7 +93,7 @@ public class PokecubeWikiWriter
             {
                 if (e == null) continue;
                 ended = false;
-                out.print("| " + formatPokemobLink(e, refs, (reference++) + ""));
+                out.print("|" + referenceLink(e.getTranslatedName(), e.getTranslatedName()));
                 if (n % 4 == 3)
                 {
                     out.print("| \n");
@@ -107,10 +104,6 @@ public class PokecubeWikiWriter
             if (!ended)
             {
                 out.print("| \n");
-            }
-            for (int i = 0; i < refs.size(); i++)
-            {
-                out.println("[" + (i + 1) + "]: " + refs.get(i).replace(" ", "%20"));
             }
             out.close();
             fwriter.close();

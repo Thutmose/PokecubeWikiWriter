@@ -56,14 +56,16 @@ public class PokemobPageWriter extends PokecubeWikiWriter
             String next = "";
             if (nex != entry)
             {
-                next = referenceLink((reference++) + "", nex.getTranslatedName());
-                refs.add(pokemobDir + pagePrefix + nex.getName());
+                // reference++;
+                next = referenceLink(nex.getTranslatedName(), nex.getTranslatedName());
+                // refs.add(pokemobDir + pagePrefix + nex.getName());
             }
             String prev = "";
             if (pre != entry)
             {
-                prev = referenceLink((reference++) + "", pre.getTranslatedName());
-                refs.add(pokemobDir + pagePrefix + pre.getName());
+                // reference++;
+                prev = referenceLink(pre.getTranslatedName() + "", pre.getTranslatedName());
+                // refs.add(pokemobDir + pagePrefix + pre.getName());
             }
             otherPokemon = "| " + prev + otherPokemon + next + " |";
 
@@ -99,8 +101,8 @@ public class PokemobPageWriter extends PokecubeWikiWriter
                 {
                     if (d.evolution == null) continue;
                     nex = d.evolution;
-                    String evoLink = referenceLink((reference++) + "", nex.getTranslatedName());
-                    refs.add(pokemobDir + pagePrefix + nex.getName());
+                    String evoLink = referenceLink(nex.getTranslatedName(), nex.getTranslatedName());
+                    // refs.add(pokemobDir + pagePrefix + nex.getName());
                     String evoString = null;
                     if (d.level > 0)
                     {
@@ -146,8 +148,10 @@ public class PokemobPageWriter extends PokecubeWikiWriter
             }
             if (entry.evolvesFrom != null)
             {
-                String evoString = referenceLink((reference++) + "", entry.evolvesFrom.getTranslatedName());
-                refs.add(pokemobDir + pagePrefix + entry.evolvesFrom.getName());
+                String evoString = referenceLink(entry.evolvesFrom.getTranslatedName(),
+                        entry.evolvesFrom.getTranslatedName());
+                // refs.add(pokemobDir + pagePrefix +
+                // entry.evolvesFrom.getName());
                 out.println(I18n.format("pokemob.description.evolve.from", entry.getTranslatedName(), evoString));
             }
             out.println();
@@ -210,7 +214,9 @@ public class PokemobPageWriter extends PokecubeWikiWriter
                 {
                     if (e == null) continue;
                     ended = false;
-                    out.print("| " + formatPokemobLink(e, refs, (reference++) + ""));
+                    // out.print("| " + formatPokemobLink(e, refs, (reference++)
+                    // + ""));
+                    out.print("|" + referenceLink(e.getTranslatedName(), e.getTranslatedName()));
                     if (n % 4 == 3)
                     {
                         out.print("| \n");
