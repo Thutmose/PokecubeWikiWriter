@@ -3,9 +3,7 @@ package pokecube.wiki;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -81,14 +79,7 @@ public class PokecubeWikiWriter
             int n = 0;
             boolean ended = false;
             List<PokedexEntry> entries = Lists.newArrayList(Database.baseFormes.values());
-            Collections.sort(entries, new Comparator<PokedexEntry>()
-            {
-                @Override
-                public int compare(PokedexEntry o1, PokedexEntry o2)
-                {
-                    return o1.getPokedexNb() - o1.getPokedexNb();
-                }
-            });
+            Collections.sort(entries, Database.COMPARATOR);
             for (PokedexEntry e : entries)
             {
                 if (e == null) continue;

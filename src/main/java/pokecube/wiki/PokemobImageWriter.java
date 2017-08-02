@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -54,20 +53,7 @@ public class PokemobImageWriter extends PokecubeWikiWriter
             index = 0;
             sortedEntries.clear();
             sortedEntries.addAll(Database.allFormes);
-            Collections.sort(sortedEntries, new Comparator<PokedexEntry>()
-            {
-                @Override
-                public int compare(PokedexEntry o1, PokedexEntry o2)
-                {
-                    int diff = o1.getPokedexNb() - o2.getPokedexNb();
-                    if (diff == 0)
-                    {
-                        if (o1.base && !o2.base) diff = -1;
-                        else if (o2.base && !o1.base) diff = 1;
-                    }
-                    return diff;
-                }
-            });
+            Collections.sort(sortedEntries, Database.COMPARATOR);
             return;
         }
         GuiGifCapture.pokedexEntry = Pokedex.getInstance().getEntry(1);

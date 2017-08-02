@@ -98,7 +98,7 @@ public class WikiWriteMod
                         PokemobImageWriter.gifs = false;
                         PokemobImageWriter.beginGifCapture();
                         GuiGifCapture.pokedexEntry = init;
-                        Minecraft.getMinecraft().thePlayer.openGui(instance, 0, player.worldObj, 0, 0, 0);
+                        Minecraft.getMinecraft().thePlayer.openGui(instance, 0, player.getEntityWorld(), 0, 0, 0);
                     }
                 }
             }

@@ -3,8 +3,6 @@
  */
 package pokecube.wiki;
 
-import static pokecube.core.utils.PokeType.flying;
-
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -27,9 +25,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import pokecube.core.database.Pokedex;
 import pokecube.core.database.PokedexEntry;
-import pokecube.core.entity.pokemobs.EntityPokemob;
 import pokecube.core.interfaces.IPokemob;
 import pokecube.core.interfaces.PokecubeMod;
+import pokecube.core.interfaces.capabilities.CapabilityPokemob;
+import pokecube.core.utils.PokeType;
 
 /** @author Manchou */
 public class GuiGifCapture extends GuiScreen
@@ -218,13 +217,14 @@ public class GuiGifCapture extends GuiScreen
 
         if (pokemob == null)
         {
-            pokemob = (EntityLiving) PokecubeMod.core.createPokemob(pokedexEntry, entityPlayer.worldObj);
-
+            pokemob = (EntityLiving) PokecubeMod.core.createPokemob(pokedexEntry, entityPlayer.getEntityWorld());
+            IPokemob ipokemob;
             if (pokemob != null)
             {
-                pokemob = (EntityLiving) ((IPokemob) pokemob).megaEvolve(pokedexEntry);
-                ((IPokemob) pokemob).setSize(1);
-                ((IPokemob) pokemob).setShiny(shiny);
+                ipokemob = CapabilityPokemob.getPokemobFor(pokemob);
+                pokemob = (ipokemob = ipokemob.megaEvolve(pokedexEntry)).getEntity();
+                ipokemob.setSize(1);
+                ipokemob.setShiny(shiny);
                 entityToDisplayMap.put(pokedexEntry, pokemob);
             }
         }
@@ -240,14 +240,11 @@ public class GuiGifCapture extends GuiScreen
         try
         {
             EntityLiving entity = getEntityToDisplay();
+            IPokemob pokemob = CapabilityPokemob.getPokemobFor(entity);
             float size = 0;
             int j = 0;
             int k = 0;
-            if (entity instanceof IPokemob)
-            {
-                pokemob = (IPokemob) entity;
-                pokemob.setShiny(shiny);
-            }
+            pokemob.setShiny(shiny);
             size = Math.max(pokemob.getPokedexEntry().height, pokemob.getPokedexEntry().width);
             if (!icon) size = Math.max(size, pokemob.getPokedexEntry().length);
             j = (width - xSize) / 2 + 5;
@@ -288,12 +285,12 @@ public class GuiGifCapture extends GuiScreen
             }
             GL11.glRotatef(yRenderAngle, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(xRenderAngle, 1.0F, 0.0F, 0.0F);
-            ((EntityPokemob) entity).setPokemonAIState(IPokemob.SITTING, false);
+            pokemob.setPokemonAIState(IPokemob.SITTING, false);
             entity.setPosition(entityPlayer.posX, entityPlayer.posY + 1, entityPlayer.posZ);
             entity.limbSwing = 0;
             entity.limbSwingAmount = 0;
-            entity.onGround = ((EntityPokemob) entity).getType1() != flying
-                    && ((EntityPokemob) entity).getType2() != flying;
+            PokeType flying = PokeType.getType("flying");
+            entity.onGround = !((IPokemob) entity).isType(flying);
             int i = 15728880;
             int j1 = i % 65536;
             int k1 = i / 65536;
