@@ -6,6 +6,8 @@ package pokecube.wiki;
 import java.io.IOException;
 import java.util.HashMap;
 
+import javax.vecmath.Vector3f;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -66,6 +68,8 @@ public class GuiGifCapture extends GuiScreen
         {
             pokedexEntry = Pokedex.getInstance().getFirstEntry();
         }
+        this.xSize = 256;
+        this.ySize = 256;
     }
 
     @Override
@@ -79,8 +83,6 @@ public class GuiGifCapture extends GuiScreen
     @Override
     protected void keyTyped(char par1, int par2)
     {
-        System.out.println(par2);
-
         if (par2 == 205 || par2 == 203)
         {
             if (par2 == 205)
@@ -90,8 +92,14 @@ public class GuiGifCapture extends GuiScreen
             else pokedexEntry = Pokedex.getInstance().getNext(pokedexEntry, -1);
             return;
         }
-
-        if (par2 != 54 && par2 != 58 && par2 != 42 && par2 != 199)
+        if (par2 == 28)
+        {
+            PokemobImageWriter.gifCaptureState = true;
+            PokemobImageWriter.setCaptureTarget(pokedexEntry.getPokedexNb());
+            PokemobImageWriter.doCapturePokemobGif();
+        }
+        //
+        if (par2 == 1)
         {
             mc.displayGuiScreen(null);
             mc.setIngameFocus();
@@ -245,16 +253,21 @@ public class GuiGifCapture extends GuiScreen
             int j = 0;
             int k = 0;
             pokemob.setShiny(shiny);
-            size = Math.max(pokemob.getPokedexEntry().height, pokemob.getPokedexEntry().width);
+            pokemob.setSize(1);
+            float mobScale = pokemob.getSize();
+            Vector3f dims = pokemob.getPokedexEntry().getModelSize();
+            size = Math.max(dims.z * mobScale, Math.max(dims.y * mobScale, dims.x * mobScale));
             if (!icon) size = Math.max(size, pokemob.getPokedexEntry().length);
-            j = (width - xSize) / 2 + 5;
-            k = (height - ySize) / 2 + 5;
+            j = (width) / 2;
+            k = (height) / 2;
             GL11.glEnable(GL12.GL_RESCALE_NORMAL);
             GL11.glEnable(GL11.GL_COLOR_MATERIAL);
             GL11.glPushMatrix();
             GL11.glPushMatrix();
-            GL11.glTranslatef(j + 55, k + 120, 50F);
-            float zoom = icon ? 6f / size : (float) (25F / Math.sqrt(size));
+            GL11.glTranslatef(j, k, 50F);
+            float iconSize = 15f;
+            float otherSize = 25f;
+            float zoom = (float) (icon ? iconSize / Math.sqrt(size) : (otherSize / Math.sqrt(size)));
             GL11.glScalef(-zoom, zoom, zoom);
             GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
             float f5 = ((k + 75) - 50) - ySize;
@@ -276,10 +289,10 @@ public class GuiGifCapture extends GuiScreen
             }
             else
             {
-                yRenderAngle = 0;
+                yRenderAngle = 40;
                 xRenderAngle = 0;
-                entity.rotationYaw = 0;
-                entity.rotationPitch = 0;
+                entity.rotationYaw = yRenderAngle;
+                entity.rotationPitch = xRenderAngle;
                 entity.rotationYawHead = entity.rotationYaw;
                 entity.prevRotationYawHead = entity.rotationYaw;
             }
@@ -290,7 +303,7 @@ public class GuiGifCapture extends GuiScreen
             entity.limbSwing = 0;
             entity.limbSwingAmount = 0;
             PokeType flying = PokeType.getType("flying");
-            entity.onGround = !((IPokemob) entity).isType(flying);
+            entity.onGround = !pokemob.isType(flying);
             int i = 15728880;
             int j1 = i % 65536;
             int k1 = i / 65536;

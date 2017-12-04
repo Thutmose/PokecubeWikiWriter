@@ -35,7 +35,7 @@ public class WikiWriteMod
     public static final String MODID      = "pokecube_wikioutput";
     public static final String VERSION    = "@VERSION@";
 
-    public final static String MCVERSIONS = "[1.9.4,1.12]";
+    public final static String MCVERSIONS = "[1.9.4,1.13]";
 
     @Instance(value = MODID)
     public static WikiWriteMod instance;
@@ -56,13 +56,13 @@ public class WikiWriteMod
         event.registerServerCommand(new CommandBase()
         {
             @Override
-            public String getCommandUsage(ICommandSender sender)
+            public String getUsage(ICommandSender sender)
             {
                 return "/pokewiki stuff";
             }
 
             @Override
-            public String getCommandName()
+            public String getName()
             {
                 return "pokewiki";
             }
@@ -73,9 +73,9 @@ public class WikiWriteMod
                 EntityPlayer player = getCommandSenderAsPlayer(sender);
                 if (args.length == 1 && args[0].equals("all"))
                 {
-                    sender.addChatMessage(new TextComponentString("Starting Wiki output"));
+                    sender.sendMessage(new TextComponentString("Starting Wiki output"));
                     PokecubeWikiWriter.writeWiki();
-                    sender.addChatMessage(new TextComponentString("Finished Wiki output"));
+                    sender.sendMessage(new TextComponentString("Finished Wiki output"));
                 }
                 else if (args.length >= 2 && args[0].equals("img"))
                 {
@@ -91,14 +91,21 @@ public class WikiWriteMod
                         }
                         else
                         {
-                            init = Database.getEntry(args[1]);
+                            try
+                            {
+                                init = Database.getEntry(args[1]);
+                            }
+                            catch (Exception e)
+                            {
+                                init = Database.getEntry(CommandBase.parseInt(args[1]));
+                            }
                         }
                         if (init == null) throw new CommandException("Error in pokedex entry for " + args[1]);
                         PokemobImageWriter.one = !all;
                         PokemobImageWriter.gifs = false;
                         PokemobImageWriter.beginGifCapture();
                         GuiGifCapture.pokedexEntry = init;
-                        Minecraft.getMinecraft().thePlayer.openGui(instance, 0, player.getEntityWorld(), 0, 0, 0);
+                        Minecraft.getMinecraft().player.openGui(instance, 0, player.getEntityWorld(), 0, 0, 0);
                     }
                 }
             }

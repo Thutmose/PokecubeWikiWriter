@@ -17,6 +17,7 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import pokecube.compat.Compat;
@@ -27,7 +28,7 @@ import pokecube.core.database.PokedexEntry;
 public class PokemobImageWriter extends PokecubeWikiWriter
 {
 
-    private static boolean            gifCaptureState;
+    static boolean                    gifCaptureState;
     public static boolean             gifs           = true;
     private static int                currentCaptureFrame;
     private static int                currentPokemob = 1;
@@ -42,8 +43,8 @@ public class PokemobImageWriter extends PokecubeWikiWriter
 
     static private void openPokedex()
     {
-        Minecraft.getMinecraft().thePlayer.openGui(WikiWriteMod.instance, 0,
-                Minecraft.getMinecraft().thePlayer.getEntityWorld(), 0, 0, 0);
+        Minecraft.getMinecraft().player.openGui(WikiWriteMod.instance, 0,
+                Minecraft.getMinecraft().player.getEntityWorld(), 0, 0, 0);
     }
 
     static private void setPokedexBeginning()
@@ -107,8 +108,8 @@ public class PokemobImageWriter extends PokecubeWikiWriter
         int x = w / 2;
         int y = h / 2;
 
-        WINDOW_XPOS = -250;
-        WINDOW_YPOS = -250;
+        WINDOW_XPOS = -120;
+        WINDOW_YPOS = -120;
         WINDOW_WIDTH = 120;
         WINDOW_HEIGHT = 120;
         int xb, yb;
@@ -130,12 +131,11 @@ public class PokemobImageWriter extends PokecubeWikiWriter
         capture:
         if (GuiGifCapture.icon)
         {
-            // x = x1 + i1 * 32 + -38;
-            // y = y1 + j1 * 32 + 0;
             String tex = GuiGifCapture.pokedexEntry.texturePath.replace("/entity/", "/entity_icon/");
             String pokename = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
                     new String("img" + File.separator + currentPokemob + "_"));
-            GL11.glReadBuffer(GL11.GL_FRONT);
+            GlStateManager.glPixelStorei(3333, 1);
+            GlStateManager.glPixelStorei(3317, 1);
             ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
             GL11.glReadPixels(x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
@@ -149,14 +149,13 @@ public class PokemobImageWriter extends PokecubeWikiWriter
             String fileName = pokename + currentFrameSuffix;
             if (!gifs)
             {
-                String name = GuiGifCapture.pokedexEntry.getName() + shinysuffix + ".png";
+                String name = GuiGifCapture.pokedexEntry.getTrimmedName() + shinysuffix + ".png";
                 if (GuiGifCapture.icon) name = name.toLowerCase(Locale.ENGLISH);
                 fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml",
                         new String("img" + File.separator + tex + name));
             }
             File file = new File(fileName);
-            file.mkdirs();
-            int n = 0;
+            file.getParentFile().mkdirs();
 
             int x0 = width, y0 = height, xf = 0, yf = 0;
             for (int i = 0; i < width; i++)
@@ -173,23 +172,31 @@ public class PokemobImageWriter extends PokecubeWikiWriter
                         xf = Math.max(i, xf);
                         y0 = Math.min(j, y0);
                         yf = Math.max(j, yf);
-                        n++;
                     }
                 }
             }
 
             int dy = yf - y0;
             int dx = xf - x0;
+            int dr = Math.max(dx, dy);
+            if (dx > dy)
+            {
+                y0 -= (dx - dy) / 2;
+            }
+            if (dx < dy)
+            {
+                x0 -= (dy - dx) / 2;
+            }
+            dx = dr;
+            dy = dr;
+
             int ow = width;
-            int oh = height;
             width = dx + 1;// Math.max(dx, dy);
             height = dy + 1;// width;
-            System.out.println(width + " " + height + " " + oh + " " + ow + " " + GuiGifCapture.pokedexEntry);
             if (width < 0 || height < 0) break capture;
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-            n = 0;
             for (int i = x0; i < x0 + width; i++)
             {
                 for (int j = y0; j < y0 + height; j++)
@@ -202,13 +209,17 @@ public class PokemobImageWriter extends PokecubeWikiWriter
                     if (GuiGifCapture.icon && r == 1 && g == 2 && b == 3)
                     {
                         a = 0;
-                        n++;
+                    }
+                    if (i == x0 && j == y0)
+                    {
+                        a = 255;
+                        g = 255;
+                        r = 0;
+                        b = 0;
                     }
                     image.setRGB(i - x0, height - (j - y0 + 1), (a << 24) | (r << 16) | (g << 8) | b);
                 }
             }
-            System.out.println(n + " blanks");
-
             try
             {
                 ImageIO.write(image, "png", file);
@@ -243,7 +254,7 @@ public class PokemobImageWriter extends PokecubeWikiWriter
                 fileName = Compat.CUSTOMSPAWNSFILE.replace("spawns.xml", new String("img" + File.separator + name));
             }
             File file = new File(fileName);
-            file.mkdirs();
+            file.getParentFile().mkdirs();
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             for (int i = 0; i < width; i++)
             {
