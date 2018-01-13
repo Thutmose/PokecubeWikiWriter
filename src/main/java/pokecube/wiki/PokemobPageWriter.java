@@ -16,6 +16,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import pokecube.compat.Compat;
+import pokecube.core.database.Database;
 import pokecube.core.database.Pokedex;
 import pokecube.core.database.PokedexEntry;
 import pokecube.core.database.PokedexEntry.EvolutionData;
@@ -203,14 +204,14 @@ public class PokemobPageWriter extends PokecubeWikiWriter
                     out.print("| \n");
                 }
             }
-            if (!entry.related.isEmpty())
+            if (!entry.getRelated().isEmpty())
             {
                 out.println("## " + I18n.format("pokemob.breedinglist.title"));
                 out.println("|  |  |  |  |");
                 out.println("| --- | --- | --- | --- |");
                 int n = 0;
                 boolean ended = false;
-                for (PokedexEntry e : entry.related)
+                for (PokedexEntry e : entry.getRelated())
                 {
                     if (e == null) continue;
                     ended = false;
@@ -301,12 +302,14 @@ public class PokemobPageWriter extends PokecubeWikiWriter
                     out.print("| \n");
                 }
             }
-
-            if (!entry.forms.isEmpty())
+            List<PokedexEntry> forms = Database.getFormes(entry);
+            if (forms.size() > 1)
             {
+
                 out.println("## " + I18n.format("pokemob.alternateformes.title"));
-                for (PokedexEntry entry1 : entry.forms.values())
+                for (PokedexEntry entry1 : forms)
                 {
+                    if (entry1 == entry) continue;
                     typeString = WordUtils.capitalize(PokeType.getTranslatedName(entry1.getType1()));
                     if (entry1.getType2() != PokeType.unknown)
                         typeString += "/" + WordUtils.capitalize(PokeType.getTranslatedName(entry1.getType2()));

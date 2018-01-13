@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,8 +52,7 @@ public class PokemobImageWriter extends PokecubeWikiWriter
         {
             index = 0;
             sortedEntries.clear();
-            sortedEntries.addAll(Database.allFormes);
-            Collections.sort(sortedEntries, Database.COMPARATOR);
+            sortedEntries.addAll(Database.getSortedFormes());
             return;
         }
         GuiGifCapture.pokedexEntry = Pokedex.getInstance().getEntry(1);
@@ -210,13 +208,13 @@ public class PokemobImageWriter extends PokecubeWikiWriter
                     {
                         a = 0;
                     }
-                    if (i == x0 && j == y0)
-                    {
-                        a = 255;
-                        g = 255;
-                        r = 0;
-                        b = 0;
-                    }
+//                    if (i == x0 && j == y0)
+//                    {
+//                        a = 255;
+//                        g = 255;
+//                        r = 0;
+//                        b = 0;
+//                    }
                     image.setRGB(i - x0, height - (j - y0 + 1), (a << 24) | (r << 16) | (g << 8) | b);
                 }
             }
