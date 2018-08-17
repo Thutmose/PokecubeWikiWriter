@@ -208,13 +208,6 @@ public class PokemobImageWriter extends PokecubeWikiWriter
                     {
                         a = 0;
                     }
-//                    if (i == x0 && j == y0)
-//                    {
-//                        a = 255;
-//                        g = 255;
-//                        r = 0;
-//                        b = 0;
-//                    }
                     image.setRGB(i - x0, height - (j - y0 + 1), (a << 24) | (r << 16) | (g << 8) | b);
                 }
             }

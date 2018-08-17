@@ -30,6 +30,7 @@ import pokecube.core.database.PokedexEntry;
 import pokecube.core.interfaces.IPokemob;
 import pokecube.core.interfaces.PokecubeMod;
 import pokecube.core.interfaces.capabilities.CapabilityPokemob;
+import pokecube.core.interfaces.pokemob.ai.LogicStates;
 import pokecube.core.utils.PokeType;
 
 /** @author Manchou */
@@ -298,7 +299,7 @@ public class GuiGifCapture extends GuiScreen
             }
             GL11.glRotatef(yRenderAngle, 0.0F, 1.0F, 0.0F);
             GL11.glRotatef(xRenderAngle, 1.0F, 0.0F, 0.0F);
-            pokemob.setPokemonAIState(IPokemob.SITTING, false);
+            pokemob.setLogicState(LogicStates.SITTING, false);
             entity.setPosition(entityPlayer.posX, entityPlayer.posY + 1, entityPlayer.posZ);
             entity.limbSwing = 0;
             entity.limbSwingAmount = 0;
@@ -308,7 +309,7 @@ public class GuiGifCapture extends GuiScreen
             int j1 = i % 65536;
             int k1 = i / 65536;
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j1 / 1.0F, k1 / 1.0F);
-            Minecraft.getMinecraft().getRenderManager().doRenderEntity(entity, 0, 0, 0, 0, POKEDEX_RENDER, false);
+            Minecraft.getMinecraft().getRenderManager().renderEntity(entity, 0, 0, 0, 0, POKEDEX_RENDER, false);
             GL11.glPopMatrix();
 
             EntityLivingBase owner = entityPlayer;
